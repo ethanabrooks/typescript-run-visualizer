@@ -1,0 +1,167 @@
+{
+  "version": 3,
+  "sources": [
+    {
+      "name": "default",
+      "kind": "postgres",
+      "tables": [
+        {
+          "table": {
+            "schema": "public",
+            "name": "run"
+          },
+          "object_relationships": [
+            {
+              "name": "sweep",
+              "using": {
+                "foreign_key_constraint_on": "sweepid"
+              }
+            }
+          ],
+          "array_relationships": [
+            {
+              "name": "run_logs",
+              "using": {
+                "foreign_key_constraint_on": {
+                  "column": "runid",
+                  "table": {
+                    "schema": "public",
+                    "name": "run_log"
+                  }
+                }
+              }
+            }
+          ],
+          "select_permissions": [
+            {
+              "role": "public",
+              "permission": {
+                "columns": [
+                  "id",
+                  "sweepid",
+                  "metadata"
+                ],
+                "filter": {},
+                "allow_aggregations": true
+              }
+            }
+          ]
+        },
+        {
+          "table": {
+            "schema": "public",
+            "name": "run_log"
+          },
+          "object_relationships": [
+            {
+              "name": "run",
+              "using": {
+                "foreign_key_constraint_on": "runid"
+              }
+            }
+          ],
+          "select_permissions": [
+            {
+              "role": "public",
+              "permission": {
+                "columns": [
+                  "id",
+                  "runid",
+                  "log"
+                ],
+                "filter": {},
+                "allow_aggregations": true
+              }
+            }
+          ]
+        },
+        {
+          "table": {
+            "schema": "public",
+            "name": "sweep"
+          },
+          "array_relationships": [
+            {
+              "name": "runs",
+              "using": {
+                "foreign_key_constraint_on": {
+                  "column": "sweepid",
+                  "table": {
+                    "schema": "public",
+                    "name": "run"
+                  }
+                }
+              }
+            },
+            {
+              "name": "sweep_parameters",
+              "using": {
+                "foreign_key_constraint_on": {
+                  "column": "sweepid",
+                  "table": {
+                    "schema": "public",
+                    "name": "sweep_parameter"
+                  }
+                }
+              }
+            }
+          ],
+          "select_permissions": [
+            {
+              "role": "public",
+              "permission": {
+                "columns": [
+                  "gridindex",
+                  "id",
+                  "metadata"
+                ],
+                "filter": {},
+                "allow_aggregations": true
+              }
+            }
+          ]
+        },
+        {
+          "table": {
+            "schema": "public",
+            "name": "sweep_parameter"
+          },
+          "object_relationships": [
+            {
+              "name": "sweep",
+              "using": {
+                "foreign_key_constraint_on": "sweepid"
+              }
+            }
+          ],
+          "select_permissions": [
+            {
+              "role": "public",
+              "permission": {
+                "columns": [
+                  "sweepid",
+                  "Key",
+                  "Values"
+                ],
+                "filter": {},
+                "allow_aggregations": true
+              }
+            }
+          ]
+        }
+      ],
+      "configuration": {
+        "connection_info": {
+          "database_url": {
+            "from_env": "HASURA_GRAPHQL_DATABASE_URL"
+          },
+          "pool_settings": {
+            "retries": 1,
+            "idle_timeout": 180,
+            "max_connections": 50
+          }
+        }
+      }
+    }
+  ]
+}
