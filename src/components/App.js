@@ -1,13 +1,100 @@
-import React from "react";
-
 import Header from "./Header";
-// import TodoPrivateWrapper from "./Todo/TodoPrivateWrapper";
-import SweepWrapper from "./Todo/SweepWrapper";
-// import OnlineUsersWrapper from "./OnlineUsers/OnlineUsersWrapper";
 
-import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
+import {
+  ApolloClient,
+  ApolloProvider,
+  InMemoryCache,
+  useSubscription,
+  useApolloClient,
+  gql
+} from "@apollo/client";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { useAuth0 } from "./Auth/react-auth0-spa";
+import React, { useState, useEffect } from "react";
+
+const RunLogs = ({ newLogs }) => {
+  const [{ logs }, setState] = useState({
+    error: false,
+    logs: []
+  });
+
+  if (!newLogs) {
+    throw new Error("No new logs");
+  }
+  const oldestLogId = newLogs
+    .map(({ id }) => id)
+    .reduce((acc, x) => Math.min(acc, x));
+
+  const client = useApolloClient();
+
+  useEffect(() => {
+    loadOlder();
+  }, []);
+
+  const loadOlder = async () => {
+    const GET_OLD_LOGS = gql`
+      query getOldLogs($oldestLogId: Int) {
+        run_log(where: { id: { _lt: $oldestLogId } }, order_by: { id: asc }) {
+          id
+          log
+          runid
+        }
+      }
+    `;
+
+    const { error, data } = await client.query({
+      query: GET_OLD_LOGS,
+      variables: { oldestLogId: oldestLogId }
+    });
+
+    if (data.run_log.length) {
+      setState(prevState => {
+        return { ...prevState, logs: [...prevState.logs, ...data.run_log] };
+      });
+      oldestLogId = data.run_log[data.run_log.length - 1].id;
+    }
+    if (error) {
+      console.error(error);
+      setState(prevState => {
+        return { ...prevState, error: true };
+      });
+    }
+  };
+  logs &&
+    logs.forEach(log => {
+      console.log(log.id);
+    });
+  return <div className="todoListWrapper" />;
+};
+
+// Run a subscription to get the latest public todo
+const NOTIFY_NEW_RUN_LOG = gql`
+  subscription notifyNewRunLog($sweepId: Int!) {
+    run_log(
+      where: { run: { sweepid: { _eq: $sweepId } } }
+      limit: 1
+      order_by: { id: desc }
+    ) {
+      id
+      log
+      runid
+    }
+  }
+`;
+
+const RunLogSubscription = ({ sweepId }) => {
+  const { loading, error, data } = useSubscription(NOTIFY_NEW_RUN_LOG, {
+    variables: { sweepId: sweepId }
+  });
+  if (loading) {
+    return <span>Loading...</span>;
+  }
+  if (error) {
+    console.log(error);
+    return <span>Error</span>;
+  }
+  return <RunLogs newLogs={data.run_log.length ? data.run_log[0] : null} />;
+};
 
 const createApolloClient = authToken => {
   return new ApolloClient({
@@ -25,7 +112,6 @@ const createApolloClient = authToken => {
     cache: new InMemoryCache()
   });
 };
-// eslint-disable-next-line react/prop-types
 const App = ({ idToken }) => {
   const { loading, logout } = useAuth0();
   if (loading) {
@@ -36,21 +122,7 @@ const App = ({ idToken }) => {
     <ApolloProvider client={client}>
       <div>
         <Header logoutHandler={logout} />
-        <div className="row container-fluid p-left-right-0 m-left-right-0">
-          <div className="row col-md-9 p-left-right-0 m-left-right-0">
-            {/*<div className="col-md-6 sliderMenu p-30">*/}
-            {/*  <TodoPrivateWrapper />*/}
-            {/*</div>*/}
-            <div className="col-md-6 sliderMenu p-30 bg-gray border-right">
-              <SweepWrapper />
-            </div>
-          </div>
-          <div className="col-md-3 p-left-right-0">
-            {/*<div className="col-md-12 sliderMenu p-30 bg-gray">*/}
-            {/*  <OnlineUsersWrapper />*/}
-            {/*</div>*/}
-          </div>
-        </div>
+        <RunLogSubscription sweepId={1} />
       </div>
     </ApolloProvider>
   );
