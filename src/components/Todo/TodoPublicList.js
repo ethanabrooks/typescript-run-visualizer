@@ -4,20 +4,20 @@ import TaskItem from "./TaskItem";
 
 const RunLogs = props => {
   const [state, setState] = useState({
-    olderTodosAvailable: props.latestLog ? true : false,
-    newTodosCount: 0,
+    olderLogsAvailable: props.latestLog ? true : false,
+    newLogsCount: 0,
     error: false,
-    todos: []
+    logs: []
   });
 
-  let numTodos = state.todos.length;
+  let numTodos = state.logs.length;
   let oldestTodoId = numTodos
-    ? state.todos[numTodos - 1].id
+    ? state.logs[numTodos - 1].id
     : props.latestLog
       ? props.latestLog.id + 1
       : 0;
   let newestTodoId = numTodos
-    ? state.todos[0].id
+    ? state.logs[0].id
     : props.latestLog
       ? props.latestLog.id
       : 0;
@@ -32,7 +32,7 @@ const RunLogs = props => {
     () => {
       if (props.latestLog && props.latestLog.id > newestTodoId) {
         setState(prevState => {
-          return { ...prevState, newTodosCount: prevState.newTodosCount + 1 };
+          return { ...prevState, newTodosCount: prevState.newLogsCount + 1 };
         });
         newestTodoId = props.latestLog.id;
       }
@@ -41,33 +41,27 @@ const RunLogs = props => {
   );
 
   const loadOlder = async () => {
-    const GET_OLD_PUBLIC_TODOS = gql`
-      query getOldPublicTodos($oldestTodoId: Int!) {
-        todos(
-          where: { is_public: { _eq: true }, id: { _lt: $oldestTodoId } }
-          limit: 7
-          order_by: { created_at: desc }
-        ) {
+    const GET_OLD_LOGS = gql`
+      query getOldLogs($oldestLogId: Int) {
+        run_log(where: { id: { _lt: $oldestLogId } }, order_by: { id: asc }) {
           id
-          title
-          created_at
-          user {
-            name
-          }
+          log
+          runid
         }
       }
     `;
 
     const { error, data } = await client.query({
-      query: GET_OLD_PUBLIC_TODOS,
-      variables: { oldestTodoId: oldestTodoId }
+      query: GET_OLD_LOGS,
+      variables: { oldestLogId: oldestTodoId }
     });
+    console.log(data);
 
-    if (data.todos.length) {
+    if (data.run_log.length) {
       setState(prevState => {
-        return { ...prevState, todos: [...prevState.todos, ...data.todos] };
+        return { ...prevState, logs: [...prevState.logs, ...data.run_log] };
       });
-      oldestTodoId = data.todos[data.todos.length - 1].id;
+      oldestTodoId = data.run_log[data.run_log.length - 1].id;
     } else {
       setState(prevState => {
         return { ...prevState, olderTodosAvailable: false };
@@ -83,17 +77,14 @@ const RunLogs = props => {
 
   const loadNew = async () => {
     const GET_NEW_PUBLIC_TODOS = gql`
-      query getNewPublicTodos($latestVisibleId: Int) {
-        todos(
-          where: { is_public: { _eq: true }, id: { _gt: $latestVisibleId } }
-          order_by: { created_at: desc }
+      query getNewLogs($latestVisibleId: Int) {
+        run_log(
+          where: { id: { _gt: $latestVisibleId } }
+          order_by: { id: asc }
         ) {
           id
-          title
-          created_at
-          user {
-            name
-          }
+          log
+          runid
         }
       }
     `;
@@ -101,7 +92,7 @@ const RunLogs = props => {
     const { error, data } = await client.query({
       query: GET_NEW_PUBLIC_TODOS,
       variables: {
-        latestVisibleId: state.todos.length ? state.todos[0].id : null
+        latestVisibleId: state.logs.length ? state.logs[0].id : null
       }
     });
 
@@ -109,11 +100,11 @@ const RunLogs = props => {
       setState(prevState => {
         return {
           ...prevState,
-          todos: [...data.todos, ...prevState.todos],
-          newTodosCount: 0
+          logs: [...data.run_log, ...prevState.logs],
+          newLogsCount: 0
         };
       });
-      newestTodoId = data.todos[0].id;
+      newestTodoId = data.run_log[0].id;
     }
     if (error) {
       console.error(error);
@@ -126,21 +117,21 @@ const RunLogs = props => {
   return (
     <Fragment>
       <div className="todoListWrapper">
-        {state.newTodosCount !== 0 && (
+        {state.newLogsCount !== 0 && (
           <div className={"loadMoreSection"} onClick={loadNew}>
-            New tasks have arrived! ({state.newTodosCount.toString()})
+            New tasks have arrived! ({state.newLogsCount.toString()})
           </div>
         )}
 
         <ul>
-          {state.todos &&
-            state.todos.map((todo, index) => {
-              return <TaskItem key={index} index={index} todo={todo} />;
+          {state.logs &&
+            state.logs.map((log, index) => {
+              console.log(log.log);
             })}
         </ul>
 
         <div className={"loadMoreSection"} onClick={loadOlder}>
-          {state.olderTodosAvailable
+          {state.olderLogsAvailable
             ? "Load older tasks"
             : "No more public tasks!"}
         </div>
