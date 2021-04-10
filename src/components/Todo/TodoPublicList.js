@@ -2,9 +2,9 @@ import React, { Fragment, useState, useEffect } from "react";
 import { useSubscription, useApolloClient, gql } from "@apollo/client";
 import TaskItem from "./TaskItem";
 
-const TodoPublicList = props => {
+const RunLogs = props => {
   const [state, setState] = useState({
-    olderTodosAvailable: props.latestTodo ? true : false,
+    olderTodosAvailable: props.latestLog ? true : false,
     newTodosCount: 0,
     error: false,
     todos: []
@@ -13,13 +13,13 @@ const TodoPublicList = props => {
   let numTodos = state.todos.length;
   let oldestTodoId = numTodos
     ? state.todos[numTodos - 1].id
-    : props.latestTodo
-      ? props.latestTodo.id + 1
+    : props.latestLog
+      ? props.latestLog.id + 1
       : 0;
   let newestTodoId = numTodos
     ? state.todos[0].id
-    : props.latestTodo
-      ? props.latestTodo.id
+    : props.latestLog
+      ? props.latestLog.id
       : 0;
 
   const client = useApolloClient();
@@ -30,14 +30,14 @@ const TodoPublicList = props => {
 
   useEffect(
     () => {
-      if (props.latestTodo && props.latestTodo.id > newestTodoId) {
+      if (props.latestLog && props.latestLog.id > newestTodoId) {
         setState(prevState => {
           return { ...prevState, newTodosCount: prevState.newTodosCount + 1 };
         });
-        newestTodoId = props.latestTodo.id;
+        newestTodoId = props.latestLog.id;
       }
     },
-    [props.latestTodo]
+    [props.latestLog]
   );
 
   const loadOlder = async () => {
@@ -150,29 +150,43 @@ const TodoPublicList = props => {
 };
 
 // Run a subscription to get the latest public todo
-const NOTIFY_NEW_PUBLIC_TODOS = gql`
-  subscription notifyNewPublicTodos {
-    todos(
-      where: { is_public: { _eq: true } }
+const NOTIFY_NEW_RUN_LOG = gql`
+  subscription notifyNewRunLog($sweepId: Int!) {
+    run_log(
+      where: { run: { sweepid: { _eq: $sweepId } } }
       limit: 1
-      order_by: { created_at: desc }
+      order_by: { id: desc }
     ) {
       id
-      created_at
+      log
+      runid
     }
   }
 `;
+// const NOTIFY_NEW_PUBLIC_TODOS = gql`
+//   subscription notifyNewPublicTodos {
+//     todos(
+//       where: { is_public: { _eq: true } }
+//       limit: 1
+//       order_by: { created_at: desc }
+//     ) {
+//       id
+//       created_at
+//     }
+//   }
+// `;
 
-const TodoPublicListSubscription = () => {
-  const { loading, error, data } = useSubscription(NOTIFY_NEW_PUBLIC_TODOS);
+const RunLogSubscription = ({ sweepId }) => {
+  const { loading, error, data } = useSubscription(NOTIFY_NEW_RUN_LOG, {
+    variables: { sweepId: sweepId }
+  });
   if (loading) {
     return <span>Loading...</span>;
   }
   if (error) {
+    console.log(error);
     return <span>Error</span>;
   }
-  return (
-    <TodoPublicList latestTodo={data.todos.length ? data.todos[0] : null} />
-  );
+  return <RunLogs latestLog={data.run_log.length ? data.run_log[0] : null} />;
 };
-export default TodoPublicListSubscription;
+export default RunLogSubscription;
