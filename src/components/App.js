@@ -12,7 +12,7 @@ import { useAuth0 } from "./Auth/react-auth0-spa";
 const createApolloClient = authToken => {
   return new ApolloClient({
     link: new WebSocketLink({
-      uri: "wss://helpful-sunfish-70.hasura.app/v1/graphql",
+      uri: "ws://rldl12.eecs.umich.edu:8080/v1/graphql",
       options: {
         reconnect: true,
         connectionParams: {
