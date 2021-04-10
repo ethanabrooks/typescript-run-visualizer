@@ -12,18 +12,15 @@ import { WebSocketLink } from "@apollo/client/link/ws";
 import { useAuth0 } from "./Auth/react-auth0-spa";
 import React, { useState, useEffect } from "react";
 
-const RunLogs = ({ newLogs }) => {
+const RunLogs = ({ newLog }) => {
   const [{ logs }, setState] = useState({
     error: false,
     logs: []
   });
 
-  if (!newLogs) {
+  if (!newLog) {
     throw new Error("No new logs");
   }
-  const oldestLogId = newLogs
-    .map(({ id }) => id)
-    .reduce((acc, x) => Math.min(acc, x));
 
   const client = useApolloClient();
 
@@ -44,14 +41,13 @@ const RunLogs = ({ newLogs }) => {
 
     const { error, data } = await client.query({
       query: GET_OLD_LOGS,
-      variables: { oldestLogId: oldestLogId }
+      variables: { oldestLogId: newLog.id }
     });
 
     if (data.run_log.length) {
       setState(prevState => {
         return { ...prevState, logs: [...prevState.logs, ...data.run_log] };
       });
-      oldestLogId = data.run_log[data.run_log.length - 1].id;
     }
     if (error) {
       console.error(error);
@@ -93,7 +89,7 @@ const RunLogSubscription = ({ sweepId }) => {
     console.log(error);
     return <span>Error</span>;
   }
-  return <RunLogs newLogs={data.run_log.length ? data.run_log[0] : null} />;
+  return <RunLogs newLog={data.run_log.length ? data.run_log[0] : null} />;
 };
 
 const createApolloClient = authToken => {
