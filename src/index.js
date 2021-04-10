@@ -20,7 +20,7 @@ const mainRoutes = (
   <Router history={history}>
     <Route
       path="/"
-      render={props => (
+      render={_ => (
         <Auth0Provider
           domain={AUTH_CONFIG.domain}
           client_id={AUTH_CONFIG.clientId}

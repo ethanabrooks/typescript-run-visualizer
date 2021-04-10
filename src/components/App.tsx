@@ -3,91 +3,17 @@ import Header from "./Header";
 import {
   ApolloClient,
   ApolloProvider,
+  gql,
   InMemoryCache,
-  useSubscription,
   useApolloClient,
-  gql
+  useSubscription
 } from "@apollo/client";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { useAuth0 } from "./Auth/react-auth0-spa";
-import React, { useState, useEffect, useRef } from "react";
-import { Vega, VegaLite, View, VisualizationSpec } from "react-vega";
+import React, { useEffect, useRef, useState } from "react";
+import { Vega } from "react-vega";
 import * as vega from "vega";
-
-const spec = {
-  $schema: "https://vega.github.io/schema/vega-lite/v4.json",
-  description: "Streaming Data",
-  height: 200,
-  width: 600,
-  data: { name: "data" },
-  layer: [
-    {
-      encoding: {
-        x: {
-          field: "x",
-          type: "quantitative",
-          axis: {
-            title: "x axis"
-          }
-        },
-        y: {
-          field: "value",
-          type: "quantitative",
-          axis: {
-            title: "values"
-          }
-        }
-      },
-      layer: [
-        {
-          mark: {
-            type: "area",
-            line: {
-              color: "darkslategray"
-            },
-            color: {
-              x1: 1,
-              y1: 1,
-              x2: 1,
-              y2: 0,
-              gradient: "linear",
-              stops: [
-                {
-                  offset: 0,
-                  color: "white"
-                },
-                {
-                  offset: 1,
-                  color: "darkslategray"
-                }
-              ]
-            }
-          }
-        },
-        {
-          // @ts-ignore
-          selection: {
-            label: {
-              type: "single",
-              nearest: true,
-              on: "mouseover",
-              encodings: ["x"],
-              empty: "none"
-            }
-          },
-          mark: { type: "rule", color: "gray" },
-          encoding: {
-            tooltip: [{ field: "value", title: "value ", type: "ordinal" }],
-            opacity: {
-              condition: { selection: "label", value: 1 },
-              value: 0
-            }
-          }
-        }
-      ]
-    }
-  ]
-};
+import { spec } from "./Spec.tsx";
 
 const sineDataSupplier = x => {
   const y = 100 / 2 + 40 * Math.sin(x / 2);

@@ -1,6 +1,4 @@
-import { VisualizationSpec } from "react-vega";
-
-export default {
+export const spec = {
   $schema: "https://vega.github.io/schema/vega-lite/v4.json",
   description: "Streaming Data",
   height: 200,
@@ -65,7 +63,7 @@ export default {
           encoding: {
             tooltip: [{ field: "value", title: "value ", type: "ordinal" }],
             opacity: {
-              condition: { selection: "label", value: 1 } as any,
+              condition: { selection: "label", value: 1 },
               value: 0
             }
           }
@@ -73,4 +71,4 @@ export default {
       ]
     }
   ]
-} as VisualizationSpec;
+};
