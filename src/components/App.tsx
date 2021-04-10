@@ -36,24 +36,26 @@ const RunLogs = ({ newLog }) => {
 
   useEffect(
     () => {
-      function updateGraph() {
-        const data = sineDataSupplier(ref.current.x);
-        ref.current.x++;
-        ref.current.z++;
+      // function updateGraph() {
+      ref.current.x++;
+      ref.current.z++;
 
+      logs.forEach(log => {
+        const data = { x: log.log.step, value: log.log["Episode return"] };
         const cs = vega.changeset().insert(data);
         // .remove((t: { x: number; value: number }) => {
         //   return t.x < ref.current.z;
         // });
 
         if (view !== undefined) view.change("data", cs).run();
-      }
+        // }
 
-      updateGraph();
-      const interval = setInterval(updateGraph, 110);
-      return () => clearInterval(interval);
+        // updateGraph();
+        // const interval = setInterval(updateGraph, 110);
+        // return () => clearInterval(interval);
+      });
     },
-    [view]
+    [view, logs]
   );
 
   if (!newLog) {
@@ -94,10 +96,6 @@ const RunLogs = ({ newLog }) => {
       });
     }
   };
-  logs &&
-    logs.forEach(log => {
-      console.log(log.id);
-    });
   return (
     <>
       <h3>React Vega Streaming Data</h3>
