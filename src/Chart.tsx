@@ -1,10 +1,11 @@
-import React from "react";
+import React, { FC } from "react";
 import { PlainObject, Vega, View, VisualizationSpec } from "react-vega";
 import spec from "./Spec.json";
 
 export type Data = { runId: string };
 
-export function Chart({ data, newData }: { data: Data[]; newData: Data }) {
+type Props = { data: Data[]; newData: Data };
+export const Chart: FC<Props> = ({ data, newData }: Props) => {
   const [view, setView] = React.useState<null | View>(null);
   React.useEffect(
     () => {
@@ -23,4 +24,4 @@ export function Chart({ data, newData }: { data: Data[]; newData: Data }) {
       onNewView={setView}
     />
   );
-}
+};

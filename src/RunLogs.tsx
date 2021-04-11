@@ -1,10 +1,10 @@
-import React from "react";
+import React, { FC } from "react";
 import { useApolloClient } from "@apollo/client";
 import { loader } from "graphql.macro";
 import { Chart, Data } from "./Chart";
 
 type Log = {
-  log: object;
+  log: Record<string, unknown>;
   runid: number;
   id: number;
 };
@@ -14,13 +14,11 @@ const logToData = ({ log, runid: c }: Log): Data => ({
 });
 
 const queryOldLogs = loader("./queryOldLogs.graphql");
-export const RunLogs = ({
-  newLog,
-  sweepId
-}: {
+type Props = {
   newLog: Log;
   sweepId: number;
-}) => {
+};
+export const RunLogs: FC<Props> = ({ newLog, sweepId }: Props) => {
   const [data, setData] = React.useState<null | Data[]>(null);
   const client = useApolloClient();
 

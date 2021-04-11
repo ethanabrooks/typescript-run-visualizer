@@ -1,10 +1,13 @@
 import { useSubscription } from "@apollo/client";
 import { RunLogs } from "./RunLogs";
-import React from "react";
+import React, { FC } from "react";
 import { loader } from "graphql.macro";
 
 const notifyNewLog = loader("./notifyNewLog.graphql");
-export const RunLogSubscription = ({ sweepId }: { sweepId: number }) => {
+type Props = {
+  sweepId: number;
+};
+export const RunLogSubscription: FC<Props> = ({ sweepId }: Props) => {
   const { loading, error, data } = useSubscription(notifyNewLog, {
     variables: { sweepId: sweepId }
   });

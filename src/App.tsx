@@ -1,14 +1,14 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { WebSocketLink } from "@apollo/client/link/ws";
-import React from "react";
+import React, { FC } from "react";
 import { RunLogSubscription } from "./RunLogSubscription";
 
-const App = () => {
+const App: FC = () => {
   const uri = process.env.REACT_APP_HASURA_URI;
   if (uri == null) {
     return <span>Environment variable `REACT_APP_HASURA_URI` is unset.</span>;
   }
-  let client = new ApolloClient({
+  const client = new ApolloClient({
     link: new WebSocketLink({
       uri: uri,
       options: {
