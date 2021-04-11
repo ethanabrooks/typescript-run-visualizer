@@ -11,32 +11,52 @@ import {
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { useAuth0 } from "./Auth/react-auth0-spa";
 import React from "react";
-import { Vega, VisualizationSpec } from "react-vega";
+import { PlainObject, Vega, View, VisualizationSpec } from "react-vega";
 import * as vega from "vega";
-import { spec } from "./Spec";
+import spec from "./Spec";
 
-const RunLogs = ({ newLog, sweepId }: { newLog: any; sweepId: number }) => {
-  const [view, setView] = React.useState();
-  const client = useApolloClient();
-
-  type Log = {
+type Log = {
+  log: {
     step: number;
     "Episode return": number;
   };
+  runid: number;
+  id: number;
+};
 
-  const addData = (newLog: null | Log) => {
-    if (newLog === null) {
+const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
+  const [data, setData] = React.useState(null);
+  const [view, setView] = React.useState<null | View>(null);
+  const client = useApolloClient();
+
+  type Data = { x: number; y: number; c: number };
+
+  const logToData = ({
+    log: { step: x, "Episode return": y },
+    runid: c
+  }: Log): Data => ({
+    x,
+    y,
+    c
+  });
+
+  const addData = (newData: null | Data) => {
+    if (newData === null) {
       return;
     }
-    const { step: x, "Episode return": value } = newLog;
-    const cs = vega.changeset().insert({ x, value });
+    const cs = vega.changeset().insert(newData);
     // @ts-ignore
-    if (view !== undefined) view.change("data", cs).run();
+    view.change("data", cs).run();
   };
 
   // This adds new data, whenever the subscription passes it to the component.
   // It would be nice if this were more neatly integrated with the previous hook
-  React.useEffect(() => addData(newLog), [newLog]);
+  React.useEffect(
+    () => {
+      // if (view !== null) addData(newLog === null ? null : logToData(newLog));
+    },
+    [newLog, view]
+  );
 
   // This actually issues the graphQL query for old logs. I tried integrating
   // The first useEffect into this one but it did not work, presumably because they
@@ -69,30 +89,40 @@ const RunLogs = ({ newLog, sweepId }: { newLog: any; sweepId: number }) => {
           error,
           data: { run_log }
         } = await client.query(OLD_LOG_QUERY);
-        run_log.forEach(({ log }: { log: Log }) => addData(log));
+        setData(
+          run_log
+            .map(logToData)
+            .reduce(
+              (acc: Data[], data: Data) =>
+                data.y == null ? acc : acc.concat(data),
+              []
+            )
+        );
         if (error) {
           console.error(error);
         }
       })();
     },
-    [view]
+    [view, setData]
   );
 
-  let plot = (
-    <Vega
-      spec={spec as VisualizationSpec}
-      actions={false}
-      renderer={"svg"}
-      // @ts-ignore
-      onNewView={view => setView(view)}
-    />
-  );
-  return (
-    <>
-      <h3>React Vega Streaming Data</h3>
-      <div>{plot}</div>
-    </>
-  );
+  if (data == null) {
+    return <div>{"Loading..."}</div>;
+  } else {
+    console.log(data);
+    return (
+      <div>
+        {
+          <Vega
+            spec={spec as VisualizationSpec}
+            renderer={"svg"}
+            data={{ values: data } as PlainObject}
+            onNewView={setView}
+          />
+        }
+      </div>
+    );
+  }
 };
 
 // Run a subscription to get the latest run_log
