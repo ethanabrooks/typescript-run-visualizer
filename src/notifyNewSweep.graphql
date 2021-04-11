@@ -1,0 +1,10 @@
+subscription {
+    sweep {
+        id
+        metadata
+        sweep_parameters {
+            Key
+            Values
+        }
+    }
+}
