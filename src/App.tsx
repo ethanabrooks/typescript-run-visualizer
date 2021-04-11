@@ -12,22 +12,15 @@ import spec from "./Spec";
 import { loader } from "graphql.macro";
 
 type Log = {
-  log: {
-    step: number;
-    "Episode return": number;
-  };
+  log: object;
   runid: number;
   id: number;
 };
-type Data = { x: number; y: number; c: string };
+type Data = { runId: string };
 
-const logToData = ({
-  log: { step: x, "Episode return": y },
-  runid: c
-}: Log): Data => ({
-  x,
-  y,
-  c: `run ${c}`
+const logToData = ({ log, runid: c }: Log): Data => ({
+  runId: `run ${c}`,
+  ...log
 });
 
 const queryOldLogs = loader("./queryOldLogs.graphql");

@@ -10,21 +10,21 @@ export default {
 
   encoding: {
     x: {
-      field: "x",
+      field: "step",
       type: "quantitative",
       axis: {
         title: "x axis"
       }
     },
     y: {
-      field: "y",
+      field: "Episode return",
       type: "quantitative",
       axis: {
         title: "values"
       }
     },
     color: {
-      field: "c",
+      field: "runId",
       type: "nominal"
     }
   },
@@ -40,9 +40,9 @@ export default {
       },
       encoding: {
         tooltip: [
-          { field: "x", title: "step ", type: "quantitative" },
-          { field: "y", title: "value ", type: "quantitative" },
-          { field: "c", title: "run ", type: "nominal" }
+          { field: "step", title: "step ", type: "quantitative" },
+          { field: "Episode return", title: "value ", type: "quantitative" },
+          { field: "runId", title: "run ", type: "nominal" }
         ]
       },
       mark: { type: "rule", opacity: 0 }
