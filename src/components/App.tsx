@@ -1,22 +1,15 @@
-import Header from "./Header";
-
 import {
   ApolloClient,
   ApolloProvider,
-  gql,
   InMemoryCache,
   useApolloClient,
   useSubscription
 } from "@apollo/client";
 import { WebSocketLink } from "@apollo/client/link/ws";
-import { useAuth0 } from "./Auth/react-auth0-spa";
 import React from "react";
 import { PlainObject, Vega, View, VisualizationSpec } from "react-vega";
-import * as vega from "vega";
 import spec from "./Spec";
 import { loader } from "graphql.macro";
-const notifyNewLog = loader("./notifyNewLog.graphql");
-const queryOldLogs = loader("./queryOldLogs.graphql");
 
 type Log = {
   log: {
@@ -37,16 +30,16 @@ const logToData = ({
   c: `run ${c}`
 });
 
+const queryOldLogs = loader("./queryOldLogs.graphql");
 const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
   const [data, setData] = React.useState(null);
   const [view, setView] = React.useState<null | View>(null);
-  const x = React.useRef(0);
   const client = useApolloClient();
 
   React.useEffect(
     () => {
       if (view != null && newLog != null) {
-        const cs = vega.changeset().insert(logToData(newLog));
+        const cs = view.changeset().insert(logToData(newLog));
         view.change("data", cs).run();
       }
     },
@@ -63,20 +56,10 @@ const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
           query: queryOldLogs,
           variables: {
             sweepId: sweepId,
-            oldestLogId: newLog === null ? 0 : newLog.id
+            upTo: newLog === null ? 0 : newLog.id
           }
         });
-        let data = run_log
-          .map(logToData)
-          .reduce(
-            (acc: Data[], data: Data) =>
-              data.y == null ? acc : acc.concat(data),
-            []
-          );
-        x.current = data.reduce(
-          (acc: number, { x }: Data) => Math.max(acc, x),
-          0
-        );
+        let data = run_log.map(logToData);
         setData(data);
         if (error) {
           console.error(error);
@@ -86,25 +69,19 @@ const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
     [view, setData]
   );
 
-  if (data == null) {
-    return <div>{"Loading..."}</div>;
-  } else {
-    console.log(data);
-    return (
-      <div>
-        {
-          <Vega
-            spec={spec as VisualizationSpec}
-            renderer={"svg"}
-            data={{ data: data } as PlainObject}
-            onNewView={setView}
-          />
-        }
-      </div>
-    );
-  }
+  return data == null ? (
+    <p>{"Waiting for data..."}</p>
+  ) : (
+    <Vega
+      spec={spec as VisualizationSpec}
+      renderer={"svg"}
+      data={{ data: data } as PlainObject}
+      onNewView={setView}
+    />
+  );
 };
 
+const notifyNewLog = loader("./notifyNewLog.graphql");
 const RunLogSubscription = ({ sweepId }: { sweepId: number }) => {
   const { loading, error, data } = useSubscription(notifyNewLog, {
     variables: { sweepId: sweepId }
@@ -116,14 +93,18 @@ const RunLogSubscription = ({ sweepId }: { sweepId: number }) => {
     console.log(error);
     return <span>Error</span>;
   }
-  let newLog = data.run_log.length ? data.run_log[0] : null;
-  return <RunLogs newLog={newLog} sweepId={sweepId} />;
+  return (
+    <RunLogs
+      newLog={data.run_log.length ? data.run_log[0] : null}
+      sweepId={sweepId}
+    />
+  );
 };
 
 const createApolloClient = (authToken: any) => {
   return new ApolloClient({
     link: new WebSocketLink({
-      uri: "ws://rldl12.eecs.umich.edu:8080/v1/graphql",
+      uri: "ws://rldl12.eecs.umich.edu:8080/v1/graphql", // TODO: un-hard-code
       options: {
         reconnect: true,
         connectionParams: {
@@ -137,17 +118,9 @@ const createApolloClient = (authToken: any) => {
   });
 };
 const App = ({ idToken }: { idToken: string }) => {
-  const { loading, logout } = useAuth0();
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  const client = createApolloClient(idToken);
   return (
-    <ApolloProvider client={client}>
-      <div>
-        <Header logoutHandler={logout} />
-        <RunLogSubscription sweepId={6} />
-      </div>
+    <ApolloProvider client={createApolloClient(idToken)}>
+      <RunLogSubscription sweepId={6} />
     </ApolloProvider>
   );
 };
