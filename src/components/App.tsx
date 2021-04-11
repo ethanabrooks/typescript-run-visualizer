@@ -10,99 +10,87 @@ import {
 } from "@apollo/client";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { useAuth0 } from "./Auth/react-auth0-spa";
-import React, { useEffect, useState } from "react";
-import { Vega } from "react-vega";
+import React from "react";
+import { Vega, VisualizationSpec } from "react-vega";
 import * as vega from "vega";
-import { spec } from "./Spec.tsx";
+import { spec } from "./Spec";
 
-const RunLogs = ({ newLog }) => {
-  const [{ logs }, setState] = useState({
-    error: false,
-    logs: null
-  });
-  // logs is null until populated on first call
-
+const RunLogs = ({ newLog, sweepId }: { newLog: any; sweepId: number }) => {
   const [view, setView] = React.useState();
   const client = useApolloClient();
 
-  // This is supposed to run only once (it loads all the old values
-  // into the graph), but when I take out view or logs from the dependencies
-  // it stops rendering correctly. I read the vega docs, but didn't get a very
-  // clear sense of how functions like changeset(), change() and run() actually work
-  useEffect(
-    () => {
-      if (logs !== null) {
-        logs.forEach(({ log }) => {
-          const data = { x: log.step, value: log["Episode return"] };
-          const cs = vega.changeset().insert(data); // add new data
-          if (view !== undefined) view.change("data", cs).run();
-          // here are the docs on change(): https://vega.github.io/vega/docs/api/view/#view_change
-          // here are the docs on run(): https://vega.github.io/vega/docs/api/view/#dataflow-and-rendering
-        });
-      }
-    },
-    [view, logs]
-  );
+  type Log = {
+    step: number;
+    "Episode return": number;
+  };
+
+  const addData = (newLog: null | Log) => {
+    if (newLog === null) {
+      return;
+    }
+    const { step: x, "Episode return": value } = newLog;
+    const cs = vega.changeset().insert({ x, value });
+    // @ts-ignore
+    if (view !== undefined) view.change("data", cs).run();
+  };
 
   // This adds new data, whenever the subscription passes it to the component.
   // It would be nice if this were more neatly integrated with the previous hook
-  useEffect(
-    () => {
-      const data = { x: newLog.log.step, value: newLog.log["Episode return"] };
-      const cs = vega.changeset().insert(data);
-      if (view !== undefined) view.change("data", cs).run();
-    },
-    [newLog]
-  );
+  React.useEffect(() => addData(newLog), [newLog]);
 
   // This actually issues the graphQL query for old logs. I tried integrating
   // The first useEffect into this one but it did not work, presumably because they
   // have different deps.
-  useEffect(() => {
-    (async () => {
-      const GET_OLD_LOGS = gql`
-        query getOldLogs($oldestLogId: Int) {
-          run_log(where: { id: { _lt: $oldestLogId } }, order_by: { id: asc }) {
-            id
-            log
-            runid
+  React.useEffect(
+    () => {
+      (async () => {
+        let OLD_LOG_QUERY = {
+          query: gql`
+            query getOldLogs($sweepId: Int, $oldestLogId: Int) {
+              run_log(
+                where: {
+                  run: { sweepid: { _eq: $sweepId } }
+                  id: { _lt: $oldestLogId }
+                }
+                order_by: { id: asc }
+              ) {
+                id
+                log
+                runid
+              }
+            }
+          `,
+          variables: {
+            sweepId: sweepId,
+            oldestLogId: newLog === null ? 0 : newLog.id
           }
+        };
+        const {
+          error,
+          data: { run_log }
+        } = await client.query(OLD_LOG_QUERY);
+        run_log.forEach(({ log }: { log: Log }) => addData(log));
+        if (error) {
+          console.error(error);
         }
-      `;
+      })();
+    },
+    [view]
+  );
 
-      const {
-        error,
-        data: { run_log }
-      } = await client.query({
-        query: GET_OLD_LOGS,
-        variables: { oldestLogId: newLog.id }
-      });
-
-      if (run_log.length) {
-        setState(prevState => {
-          return { ...prevState, logs: run_log };
-        });
-      }
-      if (error) {
-        console.error(error);
-        setState(prevState => {
-          return { ...prevState, error: true };
-        });
-      }
-    })();
-  }, []);
-
+  let plot = (
+    <Vega
+      spec={spec as VisualizationSpec}
+      actions={false}
+      renderer={"svg"}
+      // @ts-ignore
+      onNewView={view => setView(view)}
+    />
+  );
   return (
     <>
       <h3>React Vega Streaming Data</h3>
-      <div>
-        <Vega
-          spec={spec}
-          actions={false}
-          renderer={"svg"}
-          onNewView={view => setView(view)}
-        />
-      </div>
+      <div>{plot}</div>
     </>
   );
 };
@@ -122,7 +110,7 @@ const NOTIFY_NEW_RUN_LOG = gql`
   }
 `;
 
-const RunLogSubscription = ({ sweepId }) => {
+const RunLogSubscription = ({ sweepId }: { sweepId: number }) => {
   const { loading, error, data } = useSubscription(NOTIFY_NEW_RUN_LOG, {
     variables: { sweepId: sweepId }
   });
@@ -133,10 +121,11 @@ const RunLogSubscription = ({ sweepId }) => {
     console.log(error);
     return <span>Error</span>;
   }
-  return <RunLogs newLog={data.run_log.length ? data.run_log[0] : null} />;
+  let newLog = data.run_log.length ? data.run_log[0] : null;
+  return <RunLogs newLog={newLog} sweepId={sweepId} />;
 };
 
-const createApolloClient = authToken => {
+const createApolloClient = (authToken: any) => {
   return new ApolloClient({
     link: new WebSocketLink({
       uri: "ws://rldl12.eecs.umich.edu:8080/v1/graphql",
@@ -152,7 +141,7 @@ const createApolloClient = authToken => {
     cache: new InMemoryCache()
   });
 };
-const App = ({ idToken }) => {
+const App = ({ idToken }: { idToken: string }) => {
   const { loading, logout } = useAuth0();
   if (loading) {
     return <div>Loading...</div>;
@@ -162,7 +151,7 @@ const App = ({ idToken }) => {
     <ApolloProvider client={client}>
       <div>
         <Header logoutHandler={logout} />
-        <RunLogSubscription sweepId={1} />
+        <RunLogSubscription sweepId={4} />
       </div>
     </ApolloProvider>
   );
