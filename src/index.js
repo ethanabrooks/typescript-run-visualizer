@@ -1,13 +1,11 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import { Link, Route, Router } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
 
 import App from "./App";
-import { Switch } from "react-bootstrap";
-import { createBrowserHistory } from "history";
 
 const router = (
-  <Router history={createBrowserHistory()}>
+  <Router>
     <div>
       <nav>
         <ul>
