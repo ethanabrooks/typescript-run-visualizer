@@ -24,28 +24,24 @@ export const RunLogs = ({
   const [data, setData] = React.useState<null | Data[]>(null);
   const client = useApolloClient();
 
-  React.useEffect(
-    () => {
-      (async () => {
-        const {
-          error,
-          data: { run_log }
-        } = await client.query({
-          query: queryOldLogs,
-          variables: {
-            sweepId: sweepId,
-            upTo: newLog === null ? 0 : newLog.id
-          }
-        });
-        let data = run_log.map(logToData);
-        setData(data);
-        if (error) {
-          console.error(error);
+  React.useEffect(() => {
+    (async () => {
+      const {
+        error,
+        data: { run_log }
+      } = await client.query({
+        query: queryOldLogs,
+        variables: {
+          sweepId: sweepId,
+          upTo: newLog === null ? 0 : newLog.id
         }
-      })();
-    },
-    [setData]
-  );
+      });
+      setData(run_log.map(logToData));
+      if (error) {
+        console.error(error);
+      }
+    })();
+  }, []);
 
   return data == null ? (
     <span>{"Waiting for data..."}</span>
