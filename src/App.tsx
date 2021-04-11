@@ -8,7 +8,7 @@ import {
 import { WebSocketLink } from "@apollo/client/link/ws";
 import React from "react";
 import { PlainObject, Vega, View, VisualizationSpec } from "react-vega";
-import spec from "./Spec";
+import spec from "./Spec.json";
 import { loader } from "graphql.macro";
 
 type Log = {
