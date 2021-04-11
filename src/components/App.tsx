@@ -34,13 +34,39 @@ const logToData = ({
   c
 });
 
+// Run a subscription to get the latest run_log
+const NOTIFY_NEW_RUN_LOG = gql`
+  subscription notifyNewRunLog($sweepId: Int!) {
+    run_log(
+      where: { run: { sweepid: { _eq: $sweepId } } }
+      limit: 1
+      order_by: { id: desc }
+    ) {
+      id
+      log
+      runid
+    }
+  }
+`;
+
+let OLD_LOG_QUERY = gql`
+  query getOldLogs($sweepId: Int, $oldestLogId: Int) {
+    run_log(
+      where: { run: { sweepid: { _eq: $sweepId } }, id: { _lt: $oldestLogId } }
+      order_by: { id: asc }
+    ) {
+      id
+      log
+      runid
+    }
+  }
+`;
+
 const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
   const [data, setData] = React.useState(null);
   const [view, setView] = React.useState<null | View>(null);
   const client = useApolloClient();
 
-  // This adds new data, whenever the subscription passes it to the component.
-  // It would be nice if this were more neatly integrated with the previous hook
   React.useEffect(
     () => {
       if (view != null && newLog != null) {
@@ -51,37 +77,19 @@ const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
     [newLog, view]
   );
 
-  // This actually issues the graphQL query for old logs. I tried integrating
-  // The first useEffect into this one but it did not work, presumably because they
-  // have different deps.
   React.useEffect(
     () => {
       (async () => {
-        let OLD_LOG_QUERY = {
-          query: gql`
-            query getOldLogs($sweepId: Int, $oldestLogId: Int) {
-              run_log(
-                where: {
-                  run: { sweepid: { _eq: $sweepId } }
-                  id: { _lt: $oldestLogId }
-                }
-                order_by: { id: asc }
-              ) {
-                id
-                log
-                runid
-              }
-            }
-          `,
+        const {
+          error,
+          data: { run_log }
+        } = await client.query({
+          query: OLD_LOG_QUERY,
           variables: {
             sweepId: sweepId,
             oldestLogId: newLog === null ? 0 : newLog.id
           }
-        };
-        const {
-          error,
-          data: { run_log }
-        } = await client.query(OLD_LOG_QUERY);
+        });
         setData(
           run_log
             .map(logToData)
@@ -117,21 +125,6 @@ const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
     );
   }
 };
-
-// Run a subscription to get the latest run_log
-const NOTIFY_NEW_RUN_LOG = gql`
-  subscription notifyNewRunLog($sweepId: Int!) {
-    run_log(
-      where: { run: { sweepid: { _eq: $sweepId } } }
-      limit: 1
-      order_by: { id: desc }
-    ) {
-      id
-      log
-      runid
-    }
-  }
-`;
 
 const RunLogSubscription = ({ sweepId }: { sweepId: number }) => {
   const { loading, error, data } = useSubscription(NOTIFY_NEW_RUN_LOG, {
@@ -174,7 +167,7 @@ const App = ({ idToken }: { idToken: string }) => {
     <ApolloProvider client={client}>
       <div>
         <Header logoutHandler={logout} />
-        <RunLogSubscription sweepId={3} />
+        <RunLogSubscription sweepId={5} />
       </div>
     </ApolloProvider>
   );
