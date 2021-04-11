@@ -63,7 +63,7 @@ const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
   );
 
   return data == null ? (
-    <p>{"Waiting for data..."}</p>
+    <span>{"Waiting for data..."}</span>
   ) : (
     <Vega
       spec={spec as VisualizationSpec}
@@ -95,9 +95,13 @@ const RunLogSubscription = ({ sweepId }: { sweepId: number }) => {
 };
 
 const App = () => {
+  const uri = process.env.REACT_APP_HASURA_URI;
+  if (uri == null) {
+    return <span>Environment variable `REACT_APP_HASURA_URI` is unset.</span>;
+  }
   let client = new ApolloClient({
     link: new WebSocketLink({
-      uri: "ws://rldl12.eecs.umich.edu:8080/v1/graphql", // TODO: un-hard-code
+      uri: uri,
       options: {
         reconnect: true,
         connectionParams: {
