@@ -1,14 +1,29 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import { Route, Router } from "react-router-dom";
-import { createBrowserHistory } from "history";
+import { Link, Route, Router } from "react-router-dom";
 
 import App from "./App";
+import { Switch } from "react-bootstrap";
+import { createBrowserHistory } from "history";
 
-const mainRoutes = (
+const router = (
   <Router history={createBrowserHistory()}>
-    <Route path="/" render={_ => <App />} />
+    <div>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+        </ul>
+      </nav>
+
+      <Switch>
+        <Route path="/">
+          <App />
+        </Route>
+      </Switch>
+    </div>
   </Router>
 );
 
-ReactDOM.render(mainRoutes, document.getElementById("root"));
+ReactDOM.render(router, document.getElementById("root"));
