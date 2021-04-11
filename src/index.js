@@ -1,30 +1,7 @@
 import ReactDOM from "react-dom";
 import React from "react";
-import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
-
+import { RoutePath } from "./RoutePath";
 import MakeApolloClient from "./MakeApolloClient";
+import { Route } from "react-router-dom";
 
-const router = (
-  <Router>
-    <div>
-      <nav>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-        </ul>
-      </nav>
-
-      <Switch>
-        <Route path="/:sweepId(\d+)">
-          <MakeApolloClient />
-        </Route>
-        <Route path="/">
-          <div>TODO</div>
-        </Route>
-      </Switch>
-    </div>
-  </Router>
-);
-
-ReactDOM.render(router, document.getElementById("root"));
+ReactDOM.render(<MakeApolloClient />, document.getElementById("root"));

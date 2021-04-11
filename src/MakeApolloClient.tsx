@@ -3,10 +3,9 @@ import { WebSocketLink } from "@apollo/client/link/ws";
 import React, { FC } from "react";
 import { SubscribeToRunLogs } from "./SubscribeToRunLogs";
 import { useParams } from "react-router-dom";
+import { RoutePath } from "./RoutePath";
 
 const MakeApolloClient: FC = () => {
-  const { sweepId } = useParams<{ sweepId: string }>();
-
   const uri = process.env.REACT_APP_HASURA_URI;
   if (uri == null) {
     return <span>Environment variable `REACT_APP_HASURA_URI` is unset.</span>;
@@ -25,7 +24,7 @@ const MakeApolloClient: FC = () => {
   });
   return (
     <ApolloProvider client={client}>
-      <SubscribeToRunLogs sweepId={+sweepId} />
+      <RoutePath />
     </ApolloProvider>
   );
 };
