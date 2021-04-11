@@ -1,5 +1,5 @@
 import { useSubscription } from "@apollo/client";
-import { RunLogs } from "./RunLogs";
+import { GetOldData } from "./GetOldData";
 import React, { FC } from "react";
 import { loader } from "graphql.macro";
 
@@ -7,7 +7,7 @@ const notifyNewLog = loader("./notifyNewLog.graphql");
 type Props = {
   sweepId: number;
 };
-export const RunLogSubscription: FC<Props> = ({ sweepId }: Props) => {
+export const SubscribeToRunLogs: FC<Props> = ({ sweepId }: Props) => {
   const { loading, error, data } = useSubscription(notifyNewLog, {
     variables: { sweepId: sweepId }
   });
@@ -19,7 +19,7 @@ export const RunLogSubscription: FC<Props> = ({ sweepId }: Props) => {
     return <span>Error</span>;
   }
   return (
-    <RunLogs
+    <GetOldData
       newLog={data.run_log.length ? data.run_log[0] : null}
       sweepId={sweepId}
     />

@@ -2,7 +2,7 @@ import ReactDOM from "react-dom";
 import React from "react";
 import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
 
-import App from "./App";
+import MakeApolloClient from "./MakeApolloClient";
 
 const router = (
   <Router>
@@ -17,7 +17,7 @@ const router = (
 
       <Switch>
         <Route path="/:sweepId(\d+)">
-          <App />
+          <MakeApolloClient />
         </Route>
         <Route path="/">
           <div>TODO</div>

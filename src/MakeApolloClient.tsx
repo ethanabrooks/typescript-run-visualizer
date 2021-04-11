@@ -1,10 +1,10 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import { WebSocketLink } from "@apollo/client/link/ws";
 import React, { FC } from "react";
-import { RunLogSubscription } from "./RunLogSubscription";
+import { SubscribeToRunLogs } from "./SubscribeToRunLogs";
 import { useParams } from "react-router-dom";
 
-const App: FC = () => {
+const MakeApolloClient: FC = () => {
   const { sweepId } = useParams<{ sweepId: string }>();
 
   const uri = process.env.REACT_APP_HASURA_URI;
@@ -25,9 +25,9 @@ const App: FC = () => {
   });
   return (
     <ApolloProvider client={client}>
-      <RunLogSubscription sweepId={+sweepId} />
+      <SubscribeToRunLogs sweepId={+sweepId} />
     </ApolloProvider>
   );
 };
 
-export default App;
+export default MakeApolloClient;
