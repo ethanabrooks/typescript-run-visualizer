@@ -7,7 +7,7 @@ export const RoutePath: React.FC = () => (
   <Router>
     <Switch>
       <Route path="/:sweepId(\d+)">
-        <SubscribeToRunLog sweepId={6} />
+        <SubscribeToRunLog />
       </Route>
       <Route path="/">
         <SubscribeToSweep />
