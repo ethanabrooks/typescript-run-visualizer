@@ -3,7 +3,7 @@ import { WebSocketLink } from "@apollo/client/link/ws";
 import React, { FC } from "react";
 import { RoutePath } from "./RoutePath";
 
-const MakeApolloClient: FC = () => {
+export const MakeApolloClient: FC = () => {
   const uri = process.env.REACT_APP_HASURA_URI;
   if (uri == null) {
     return <span>Environment variable `REACT_APP_HASURA_URI` is unset.</span>;
@@ -26,5 +26,3 @@ const MakeApolloClient: FC = () => {
     </ApolloProvider>
   );
 };
-
-export default MakeApolloClient;

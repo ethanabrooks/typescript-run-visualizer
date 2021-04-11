@@ -7,7 +7,7 @@ const notifyNewLog = loader("./notifyNewLog.graphql");
 type Props = {
   sweepId: number;
 };
-export const SubscribeToRunLogs: FC<Props> = ({ sweepId }: Props) => {
+export const SubscribeToRunLog: FC<Props> = ({ sweepId }: Props) => {
   const { loading, error, data } = useSubscription(notifyNewLog, {
     variables: { sweepId: sweepId }
   });
