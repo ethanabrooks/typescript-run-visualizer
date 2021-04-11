@@ -40,14 +40,28 @@ const logToData = ({
 const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
   const [data, setData] = React.useState(null);
   const [view, setView] = React.useState<null | View>(null);
+  const x = React.useRef(0);
   const client = useApolloClient();
 
   React.useEffect(
     () => {
-      if (view != null && newLog != null) {
-        const cs = vega.changeset().insert(logToData(newLog));
-        view.change("values", cs).run();
-      }
+      setInterval(() => {
+        if (view != null) {
+          const data = {
+            x: x.current,
+            y: Math.random(),
+            c: Math.round(Math.random() * 4)
+          };
+          console.log(x);
+          x.current++;
+          const cs = vega.changeset().insert(data);
+          view.change("data", cs).run();
+        }
+      }, 500);
+      // if (view != null && newLog != null) {
+      //   const cs = vega.changeset().insert(logToData(newLog));
+      //   view.change("data", cs).run();
+      // }
     },
     [newLog, view]
   );
@@ -65,15 +79,18 @@ const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
             oldestLogId: newLog === null ? 0 : newLog.id
           }
         });
-        setData(
-          run_log
-            .map(logToData)
-            .reduce(
-              (acc: Data[], data: Data) =>
-                data.y == null ? acc : acc.concat(data),
-              []
-            )
+        let data = run_log
+          .map(logToData)
+          .reduce(
+            (acc: Data[], data: Data) =>
+              data.y == null ? acc : acc.concat(data),
+            []
+          );
+        x.current = data.reduce(
+          (acc: number, { x }: Data) => Math.max(acc, x),
+          0
         );
+        setData(data);
         if (error) {
           console.error(error);
         }
@@ -92,7 +109,7 @@ const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
           <Vega
             spec={spec as VisualizationSpec}
             renderer={"svg"}
-            data={{ values: data } as PlainObject}
+            data={{ data: data } as PlainObject}
             onNewView={setView}
           />
         }
@@ -142,7 +159,7 @@ const App = ({ idToken }: { idToken: string }) => {
     <ApolloProvider client={client}>
       <div>
         <Header logoutHandler={logout} />
-        <RunLogSubscription sweepId={5} />
+        <RunLogSubscription sweepId={6} />
       </div>
     </ApolloProvider>
   );
