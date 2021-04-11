@@ -26,7 +26,7 @@ type Log = {
   runid: number;
   id: number;
 };
-type Data = { x: number; y: number; c: number };
+type Data = { x: number; y: number; c: string };
 
 const logToData = ({
   log: { step: x, "Episode return": y },
@@ -34,7 +34,7 @@ const logToData = ({
 }: Log): Data => ({
   x,
   y,
-  c
+  c: `run ${c}`
 });
 
 const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
@@ -45,23 +45,10 @@ const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
 
   React.useEffect(
     () => {
-      setInterval(() => {
-        if (view != null) {
-          const data = {
-            x: x.current,
-            y: Math.random(),
-            c: Math.round(Math.random() * 4)
-          };
-          console.log(x);
-          x.current++;
-          const cs = vega.changeset().insert(data);
-          view.change("data", cs).run();
-        }
-      }, 500);
-      // if (view != null && newLog != null) {
-      //   const cs = vega.changeset().insert(logToData(newLog));
-      //   view.change("data", cs).run();
-      // }
+      if (view != null && newLog != null) {
+        const cs = vega.changeset().insert(logToData(newLog));
+        view.change("data", cs).run();
+      }
     },
     [newLog, view]
   );
