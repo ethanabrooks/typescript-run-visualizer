@@ -1,21 +1,17 @@
 import React from "react";
-import { PlainObject, Vega, View, VisualizationSpec } from "react-vega";
 import { useApolloClient } from "@apollo/client";
-import spec from "./Spec.json";
 import { loader } from "graphql.macro";
+import { Chart, Data } from "./Chart";
 
 type Log = {
   log: object;
   runid: number;
   id: number;
 };
-type Data = { runId: string };
 const logToData = ({ log, runid: c }: Log): Data => ({
   runId: `run ${c}`,
   ...log
 });
-
-const Chart = ({}) => {};
 
 const queryOldLogs = loader("./queryOldLogs.graphql");
 export const RunLogs = ({
@@ -25,19 +21,8 @@ export const RunLogs = ({
   newLog: Log;
   sweepId: number;
 }) => {
-  const [data, setData] = React.useState(null);
-  const [view, setView] = React.useState<null | View>(null);
+  const [data, setData] = React.useState<null | Data[]>(null);
   const client = useApolloClient();
-
-  React.useEffect(
-    () => {
-      if (view != null && newLog != null) {
-        const cs = view.changeset().insert(logToData(newLog));
-        view.change("data", cs).run();
-      }
-    },
-    [newLog, view]
-  );
 
   React.useEffect(
     () => {
@@ -59,17 +44,12 @@ export const RunLogs = ({
         }
       })();
     },
-    [view, setData]
+    [setData]
   );
 
   return data == null ? (
     <span>{"Waiting for data..."}</span>
   ) : (
-    <Vega
-      spec={spec as VisualizationSpec}
-      renderer={"svg"}
-      data={{ data: data } as PlainObject}
-      onNewView={setView}
-    />
+    <Chart data={data} newData={logToData(newLog)} />
   );
 };
