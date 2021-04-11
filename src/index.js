@@ -16,8 +16,11 @@ const router = (
       </nav>
 
       <Switch>
-        <Route path="/">
+        <Route path="/:sweepId(\d+)">
           <App />
+        </Route>
+        <Route path="/">
+          <div>TODO</div>
         </Route>
       </Switch>
     </div>
