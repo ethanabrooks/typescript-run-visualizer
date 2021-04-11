@@ -2,6 +2,8 @@ import React, { FC } from "react";
 import { useApolloClient } from "@apollo/client";
 import { loader } from "graphql.macro";
 import { Chart, Data } from "./Chart";
+import Spec from "./Spec.json";
+import { VisualizationSpec } from "react-vega";
 
 type Log = {
   log: Record<string, unknown>;
@@ -44,6 +46,17 @@ export const RunLogs: FC<Props> = ({ newLog, sweepId }: Props) => {
   return data == null ? (
     <span>{"Waiting for data..."}</span>
   ) : (
-    <Chart data={data} newData={logToData(newLog)} />
+    <React.Fragment>
+      <Chart
+        data={data}
+        newData={logToData(newLog)}
+        spec={Spec as VisualizationSpec}
+      />
+      <Chart
+        data={data}
+        newData={logToData(newLog)}
+        spec={Spec as VisualizationSpec}
+      />
+    </React.Fragment>
   );
 };
