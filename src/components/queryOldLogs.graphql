@@ -1,0 +1,10 @@
+query getOldLogs($sweepId: Int, $oldestLogId: Int) {
+    run_log(
+        where: { run: { sweepid: { _eq: $sweepId } }, id: { _lt: $oldestLogId } }
+        order_by: { id: asc }
+    ) {
+        id
+        log
+        runid
+    }
+}

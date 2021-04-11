@@ -1,0 +1,11 @@
+subscription notifyNewRunLog($sweepId: Int!) {
+    run_log(
+        where: { run: { sweepid: { _eq: $sweepId } } }
+        limit: 1
+        order_by: { id: desc }
+    ) {
+        id
+        log
+        runid
+    }
+}

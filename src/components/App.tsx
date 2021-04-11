@@ -14,6 +14,9 @@ import React from "react";
 import { PlainObject, Vega, View, VisualizationSpec } from "react-vega";
 import * as vega from "vega";
 import spec from "./Spec";
+import { loader } from "graphql.macro";
+const notifyNewLog = loader("./notifyNewLog.graphql");
+const queryOldLogs = loader("./queryOldLogs.graphql");
 
 type Log = {
   log: {
@@ -33,34 +36,6 @@ const logToData = ({
   y,
   c
 });
-
-// Run a subscription to get the latest run_log
-const NOTIFY_NEW_RUN_LOG = gql`
-  subscription notifyNewRunLog($sweepId: Int!) {
-    run_log(
-      where: { run: { sweepid: { _eq: $sweepId } } }
-      limit: 1
-      order_by: { id: desc }
-    ) {
-      id
-      log
-      runid
-    }
-  }
-`;
-
-let OLD_LOG_QUERY = gql`
-  query getOldLogs($sweepId: Int, $oldestLogId: Int) {
-    run_log(
-      where: { run: { sweepid: { _eq: $sweepId } }, id: { _lt: $oldestLogId } }
-      order_by: { id: asc }
-    ) {
-      id
-      log
-      runid
-    }
-  }
-`;
 
 const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
   const [data, setData] = React.useState(null);
@@ -84,7 +59,7 @@ const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
           error,
           data: { run_log }
         } = await client.query({
-          query: OLD_LOG_QUERY,
+          query: queryOldLogs,
           variables: {
             sweepId: sweepId,
             oldestLogId: newLog === null ? 0 : newLog.id
@@ -127,7 +102,7 @@ const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
 };
 
 const RunLogSubscription = ({ sweepId }: { sweepId: number }) => {
-  const { loading, error, data } = useSubscription(NOTIFY_NEW_RUN_LOG, {
+  const { loading, error, data } = useSubscription(notifyNewLog, {
     variables: { sweepId: sweepId }
   });
   if (loading) {
