@@ -101,25 +101,21 @@ const RunLogSubscription = ({ sweepId }: { sweepId: number }) => {
   );
 };
 
-const createApolloClient = (authToken: any) => {
-  return new ApolloClient({
+const App = () => {
+  let client = new ApolloClient({
     link: new WebSocketLink({
       uri: "ws://rldl12.eecs.umich.edu:8080/v1/graphql", // TODO: un-hard-code
       options: {
         reconnect: true,
         connectionParams: {
-          headers: {
-            Authorization: `Bearer ${authToken}`
-          }
+          headers: {}
         }
       }
     }),
     cache: new InMemoryCache()
   });
-};
-const App = ({ idToken }: { idToken: string }) => {
   return (
-    <ApolloProvider client={createApolloClient(idToken)}>
+    <ApolloProvider client={client}>
       <RunLogSubscription sweepId={6} />
     </ApolloProvider>
   );

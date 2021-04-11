@@ -1,34 +1,13 @@
 import ReactDOM from "react-dom";
 import React from "react";
 import { Route, Router } from "react-router-dom";
+import { createBrowserHistory } from "history";
 
-import "./styles/App.css";
-
-import { Auth0Provider } from "./components/Auth/react-auth0-spa";
-import history from "./utils/history";
-import { AUTH_CONFIG } from "./components/Auth/auth0-variables";
-
-const onRedirectCallback = appState => {
-  history.push(
-    appState && appState.targetUrl
-      ? appState.targetUrl
-      : window.location.pathname
-  );
-};
+import App from "./App";
 
 const mainRoutes = (
-  <Router history={history}>
-    <Route
-      path="/"
-      render={_ => (
-        <Auth0Provider
-          domain={AUTH_CONFIG.domain}
-          client_id={AUTH_CONFIG.clientId}
-          redirect_uri={AUTH_CONFIG.callbackUrl}
-          onRedirectCallback={onRedirectCallback}
-        />
-      )}
-    />
+  <Router history={createBrowserHistory()}>
+    <Route path="/" render={_ => <App />} />
   </Router>
 );
 
