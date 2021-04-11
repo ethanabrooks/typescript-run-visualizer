@@ -40,7 +40,7 @@ export default {
   scales: [
     {
       name: "x",
-      type: "point",
+      type: "linear",
       range: "width",
       domain: { data: "values", field: "x" }
     },

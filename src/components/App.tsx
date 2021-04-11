@@ -23,37 +23,30 @@ type Log = {
   runid: number;
   id: number;
 };
+type Data = { x: number; y: number; c: number };
+
+const logToData = ({
+  log: { step: x, "Episode return": y },
+  runid: c
+}: Log): Data => ({
+  x,
+  y,
+  c
+});
 
 const RunLogs = ({ newLog, sweepId }: { newLog: Log; sweepId: number }) => {
   const [data, setData] = React.useState(null);
   const [view, setView] = React.useState<null | View>(null);
   const client = useApolloClient();
 
-  type Data = { x: number; y: number; c: number };
-
-  const logToData = ({
-    log: { step: x, "Episode return": y },
-    runid: c
-  }: Log): Data => ({
-    x,
-    y,
-    c
-  });
-
-  const addData = (newData: null | Data) => {
-    if (newData === null) {
-      return;
-    }
-    const cs = vega.changeset().insert(newData);
-    // @ts-ignore
-    view.change("data", cs).run();
-  };
-
   // This adds new data, whenever the subscription passes it to the component.
   // It would be nice if this were more neatly integrated with the previous hook
   React.useEffect(
     () => {
-      // if (view !== null) addData(newLog === null ? null : logToData(newLog));
+      if (view != null && newLog != null) {
+        const cs = vega.changeset().insert(logToData(newLog));
+        view.change("values", cs).run();
+      }
     },
     [newLog, view]
   );
@@ -181,7 +174,7 @@ const App = ({ idToken }: { idToken: string }) => {
     <ApolloProvider client={client}>
       <div>
         <Header logoutHandler={logout} />
-        <RunLogSubscription sweepId={4} />
+        <RunLogSubscription sweepId={3} />
       </div>
     </ApolloProvider>
   );
