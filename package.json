@@ -13,6 +13,7 @@
     "bulma": "^0.9.2",
     "graphql": "^15.5.0",
     "graphql.macro": "^1.4.2",
+    "graphqurl": "^0.3.3",
     "moment": "2.22.2",
     "prop-types": "15.6.2",
     "react": "16.10.2",
