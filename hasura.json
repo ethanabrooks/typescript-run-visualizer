@@ -100,7 +100,7 @@
                   "column": "sweepid",
                   "table": {
                     "schema": "public",
-                    "name": "sweep_parameter"
+                    "name": "sweep_parameters"
                   }
                 }
               }
@@ -124,27 +124,13 @@
         {
           "table": {
             "schema": "public",
-            "name": "sweep_parameter"
+            "name": "sweep_parameters"
           },
           "object_relationships": [
             {
               "name": "sweep",
               "using": {
                 "foreign_key_constraint_on": "sweepid"
-              }
-            }
-          ],
-          "select_permissions": [
-            {
-              "role": "public",
-              "permission": {
-                "columns": [
-                  "sweepid",
-                  "Key",
-                  "Values"
-                ],
-                "filter": {},
-                "allow_aggregations": true
               }
             }
           ]
