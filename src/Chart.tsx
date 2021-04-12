@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { Vega, View, VisualizationSpec } from "react-vega";
 
-export type Data = { runId: string };
+export type Data = { runId: number; logId: number };
 
 type Props = { data: Data[]; newData: Data; spec: VisualizationSpec };
 export const Chart: FC<Props> = ({ data, newData, spec }: Props) => {

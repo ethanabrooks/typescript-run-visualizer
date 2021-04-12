@@ -10,8 +10,9 @@ type Log = {
   runid: number;
   id: number;
 };
-const logToData = ({ log, runid: c }: Log): Data => ({
-  runId: `run ${c}`,
+const logToData = ({ log, runid: c, id }: Log): Data => ({
+  logId: id,
+  runId: c,
   ...log
 });
 
