@@ -32,7 +32,7 @@ function useSweeps(): {
   const data =
     error || loading || !subscriptionData.sweep.length
       ? undefined
-      : subscriptionData.map(unpackSweep);
+      : subscriptionData.sweep.map(unpackSweep);
 
   return { loading, error, data };
 }

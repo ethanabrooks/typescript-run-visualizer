@@ -12,10 +12,9 @@ export const DisplaySweeps: FC<{ sweeps: Sweep[] }> = ({ sweeps }) => {
     <nav>
       <ul>
         {sweeps.map(({ id, metadata, params }, i) => {
-          const metadataString = JSON.stringify(metadata);
           return (
             <li key={i}>
-              <Link to={`/${id}`}>metadataString</Link>
+              <Link to={`/${id}`}>{JSON.stringify(metadata)}</Link>
             </li>
           );
         })}
