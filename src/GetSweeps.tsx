@@ -19,15 +19,19 @@ const unpackSweep = ({
   };
 };
 
-const notifyNewSweep = loader("./notifyNewSweep.graphql");
+const sweepsSubscription = loader("./sweepSubscription.graphql");
 function useSweeps(): {
   loading: boolean;
   error: ApolloError | undefined;
   data: Sweep[] | undefined;
 } {
   const { loading, error, data: subscriptionData } = useSubscription(
-    notifyNewSweep
+    sweepsSubscription
   );
+  console.log(sweepsSubscription);
+  console.log(loading);
+  console.log(error);
+  console.log(subscriptionData);
 
   const data =
     error || loading || !subscriptionData.sweep.length

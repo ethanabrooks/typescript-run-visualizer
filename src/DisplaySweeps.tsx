@@ -11,13 +11,18 @@ export const DisplaySweeps: FC<{ sweeps: Sweep[] }> = ({ sweeps }) => {
   return (
     <aside className={"menu"}>
       <ul className={"menu-list"}>
-        {sweeps.map(({ id, metadata, params }, i) => {
-          return (
-            <Link key={i} to={`/${id}`}>
-              <li>{JSON.stringify(metadata)}</li>
-            </Link>
-          );
-        })}
+        {sweeps
+          .sort(({ id: id1 }, { id: id2 }) => id1 - id2)
+          .reverse()
+          .map(({ id, metadata, params }, i) => {
+            return (
+              <Link key={i} to={`/${id}`}>
+                <li>
+                  {id} {JSON.stringify(metadata)}
+                </li>
+              </Link>
+            );
+          })}
       </ul>
     </aside>
   );

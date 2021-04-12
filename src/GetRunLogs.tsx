@@ -21,7 +21,7 @@ const unpackData = ({
   };
 };
 
-const notifyNewLog = loader("./notifyNewLog.graphql");
+const notifyNewLog = loader("./logSubscription.graphql");
 function useData(
   sweepId: number
 ): {
@@ -56,7 +56,7 @@ function useData(
               error,
               data: { run_log }
             } = await client.query({
-              query: loader("./queryOldLogs.graphql"),
+              query: loader("./oldLogsQuery.graphql"),
               variables: {
                 sweepId,
                 upTo: newData.logId
