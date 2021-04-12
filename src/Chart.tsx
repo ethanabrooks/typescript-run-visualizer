@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { Vega, View, VisualizationSpec } from "react-vega";
 
 export type DataPoint = { runId: number; logId: number };
-export type Data = { charts: VisualizationSpec[]; dataPoints: DataPoint[] };
+export type Data = { charts: string[]; dataPoints: DataPoint[] };
 
 type Props = { dataPoints: DataPoint[]; spec: VisualizationSpec };
 export const Chart: FC<Props> = ({ dataPoints, spec }: Props) => {
