@@ -19,13 +19,14 @@ const unpackSweep = ({
   };
 };
 
+const notifyNewSweep = loader("./notifyNewSweep.graphql");
 function useSweeps(): {
   loading: boolean;
   error: ApolloError | undefined;
   data: Sweep[] | undefined;
 } {
   const { loading, error, data: subscriptionData } = useSubscription(
-    loader("./notifyNewSweep.graphql")
+    notifyNewSweep
   );
 
   const data =
