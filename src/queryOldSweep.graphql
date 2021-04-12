@@ -5,8 +5,8 @@ query queryOldSweeps($upTo: Int) {
         id
         metadata
         sweep_parameters {
-            Key
-            Values
+            key
+            parameters
         }
     }
 }
