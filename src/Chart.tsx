@@ -1,22 +1,25 @@
 import React, { FC } from "react";
 import { Vega, View, VisualizationSpec } from "react-vega";
 
-export type Data = { runId: number; logId: number };
+export type DataPoint = { runId: number; logId: number };
+export type Data = { charts: VisualizationSpec[]; dataPoints: DataPoint[] };
 
-type Props = { data: Data[]; spec: VisualizationSpec };
-export const Chart: FC<Props> = ({ data, spec }: Props) => {
+type Props = { dataPoints: DataPoint[]; spec: VisualizationSpec };
+export const Chart: FC<Props> = ({ dataPoints, spec }: Props) => {
   const [view, setView] = React.useState<null | View>(null);
-  const [initialData, setInitialData] = React.useState<null | Data[]>(null);
+  const [initialData, setInitialData] = React.useState<null | DataPoint[]>(
+    null
+  );
   React.useEffect(
     () => {
       if (initialData === null) {
-        setInitialData(data);
-      } else if (data.length && view != null) {
-        const cs = view.changeset().insert(data[data.length - 1]);
+        setInitialData(dataPoints);
+      } else if (dataPoints.length && view != null) {
+        const cs = view.changeset().insert(dataPoints[dataPoints.length - 1]);
         view.change("data", cs).run();
       }
     },
-    [data, view]
+    [dataPoints, view]
   );
-  return <Vega spec={spec} data={{ data }} onNewView={setView} />;
+  return <Vega spec={spec} data={{ data: dataPoints }} onNewView={setView} />;
 };

@@ -28,10 +28,6 @@ function useSweeps(): {
   const { loading, error, data: subscriptionData } = useSubscription(
     sweepsSubscription
   );
-  console.log(sweepsSubscription);
-  console.log(loading);
-  console.log(error);
-  console.log(subscriptionData);
 
   const data =
     error || loading || !subscriptionData.sweep.length

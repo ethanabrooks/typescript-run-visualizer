@@ -1,0 +1,12 @@
+query getSweepData($sweepId: Int, $upTo: Int) {
+    sweep(where: {id: {_eq: $sweepId}}) {
+        runs {
+            run_logs(where: {id: {_lt: $upTo}}) {
+                id
+                runid
+                log
+            }
+        }
+        metadata
+    }
+}

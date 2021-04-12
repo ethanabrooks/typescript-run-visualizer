@@ -3,7 +3,7 @@ import { ComposeCharts } from "./ComposeCharts";
 import React, { FC, useState } from "react";
 import { loader } from "graphql.macro";
 import { useParams } from "react-router-dom";
-import { Data } from "./Chart";
+import { Data, DataPoint } from "./Chart";
 
 const unpackData = ({
   log,
@@ -13,7 +13,7 @@ const unpackData = ({
   log: Record<string, unknown>;
   runid: number;
   id: number;
-}): Data => {
+}): DataPoint => {
   return {
     logId: id,
     runId: runid,
@@ -21,21 +21,22 @@ const unpackData = ({
   };
 };
 
-const notifyNewLog = loader("./logSubscription.graphql");
+const logSubscription = loader("./logSubscription.graphql");
+const sweepQuery = loader("./sweepQuery.graphql");
 function useData(
   sweepId: number
 ): {
   loading: boolean;
   error: ApolloError | undefined;
-  data: undefined | Data[];
+  data: undefined | Data;
 } {
-  const [data, setData] = useState<undefined | Data[]>(undefined);
+  const [data, setData] = useState<undefined | Data>(undefined);
   const [error, setError] = useState<undefined | ApolloError>(undefined);
   const {
     loading,
     error: subscriptionError,
     data: subscriptionData
-  } = useSubscription(notifyNewLog, {
+  } = useSubscription(logSubscription, {
     variables: { sweepId }
   });
   const client = useApolloClient();
@@ -48,15 +49,12 @@ function useData(
         const newData = unpackData(subscriptionData.run_log[0]);
         if (data !== undefined) {
           // append new data
-          setData([...data, newData]);
+          setData({ ...data, dataPoints: [...data.dataPoints, newData] });
         } else {
           // get old data
           (async () => {
-            const {
-              error,
-              data: { run_log }
-            } = await client.query({
-              query: loader("./oldLogsQuery.graphql"),
+            const { error, data } = await client.query({
+              query: sweepQuery,
               variables: {
                 sweepId,
                 upTo: newData.logId
@@ -64,9 +62,27 @@ function useData(
             });
             if (error) {
               setError(error);
-            } else {
-              const oldData = run_log.map(unpackData);
-              setData([...oldData, newData]);
+            } else if (data.sweep.length) {
+              const [{ runs, metadata }] = data.sweep;
+              const oldData = runs
+                .map(
+                  ({
+                    run_logs
+                  }: {
+                    run_logs: {
+                      id: number;
+                      runid: number;
+                      log: Record<string, unknown>;
+                    }[];
+                  }) => run_logs
+                )
+                .flat()
+                .sort(
+                  ({ id: id1 }: { id: number }, { id: id2 }: { id: number }) =>
+                    id1 - id2
+                )
+                .map(unpackData);
+              setData({ ...metadata, dataPoints: [...oldData, newData] });
             }
           })();
         }
@@ -78,7 +94,7 @@ function useData(
   return { loading, error, data };
 }
 
-export const GetRunLogs: FC = () => {
+export const GetSweepData: FC = () => {
   const { sweepId: stringSweepId } = useParams<{ sweepId: string }>();
   const sweepId = +stringSweepId;
   const { loading, error, data } = useData(sweepId);
