@@ -7,7 +7,6 @@
 
 - improve chart display
   - [x] allow live editing chart: 2 hours
-  - [x] pull charts from Metadata: 30 min
   - [x] add ability to add new charts: 1 hour
   - [x] display script with data added in collapsible code snippet: 45 min
   - [ ] add [jstat](https://jstat.github.io/)?
@@ -17,5 +16,4 @@
 - [x] add ability to display runs: 1 hour
   
 - improve python code 
-  - [x] use graphql queries: 1 hour
   - [ ] Add python code as pip downloadable package
