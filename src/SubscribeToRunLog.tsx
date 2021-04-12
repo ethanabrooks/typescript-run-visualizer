@@ -1,5 +1,5 @@
 import { useSubscription } from "@apollo/client";
-import { GetOldData } from "./GetOldData";
+import { ComposeCharts } from "./ComposeCharts";
 import React, { FC } from "react";
 import { loader } from "graphql.macro";
 import { useParams } from "react-router-dom";
@@ -21,7 +21,7 @@ export const SubscribeToRunLog: FC = () => {
     return <span>Error</span>;
   }
   return (
-    <GetOldData
+    <ComposeCharts
       newLog={data.run_log.length ? data.run_log[0] : null}
       sweepId={sweepId}
     />

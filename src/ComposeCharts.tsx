@@ -20,7 +20,7 @@ type Props = {
   newLog: Log;
   sweepId: number;
 };
-export const GetOldData: FC<Props> = ({ newLog, sweepId }: Props) => {
+export const ComposeCharts: FC<Props> = ({ newLog, sweepId }: Props) => {
   const [data, setData] = React.useState<null | Data[]>(null);
   const client = useApolloClient();
 
