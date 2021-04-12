@@ -15,7 +15,7 @@ const unpackSweep = ({
   return {
     id,
     metadata,
-    params: new Map(sweep_parameters.map(({ key, values }) => [key, values]))
+    params: sweep_parameters
   };
 };
 
