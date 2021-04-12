@@ -3,7 +3,7 @@ import React, { FC } from "react";
 import { loader } from "graphql.macro";
 
 const notifyNewSweep = loader("./notifyNewSweep.graphql");
-export const SubscribeToSweep: FC = () => {
+export const GetSweeps: FC = () => {
   const { loading, error, data } = useSubscription(notifyNewSweep);
   if (loading) {
     return <span>Loading...</span>;

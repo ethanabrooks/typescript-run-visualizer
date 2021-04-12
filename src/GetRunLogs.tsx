@@ -5,7 +5,7 @@ import { loader } from "graphql.macro";
 import { useParams } from "react-router-dom";
 
 const notifyNewLog = loader("./notifyNewLog.graphql");
-export const SubscribeToRunLog: FC = () => {
+export const GetRunLogs: FC = () => {
   const { sweepId: stringSweepId } = useParams<{ sweepId: string }>();
   const sweepId = +stringSweepId;
   console.log(stringSweepId);
