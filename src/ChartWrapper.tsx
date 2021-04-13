@@ -10,7 +10,9 @@ export const ChartWrapper: FC<{
   data: DataPoint[];
 }> = ({ spec, data }) => {
   const [state, setState] = React.useState<State>(
-    spec == null ? { editing: true, text: "" } : { editing: false, spec }
+    spec == null
+      ? { editing: true, text: "Enter new vega spec" }
+      : { editing: false, spec }
   );
 
   if (state.editing) {
@@ -24,13 +26,13 @@ export const ChartWrapper: FC<{
     return (
       <React.Fragment>
         <div className="field">
-          <label className="label">Message</label>
+          <label className="label">Edit Vega Spec</label>
           <textarea
             onChange={({ target }) =>
               setState({ ...state, text: target.value })
             }
             className="textarea"
-            placeholder="Enter new vega spec"
+            placeholder={state.text}
           />
         </div>
         <div className="field is-grouped">
