@@ -25,6 +25,18 @@ const unpackData = ({
 
 const logSubscription = loader("./logSubscription.graphql");
 const sweepQuery = loader("./sweepQuery.graphql");
+type RunLogs = {
+  run_logs: {
+    id: number;
+    runid: number;
+    log: Record<string, unknown>;
+  }[];
+};
+
+type Metadata = {
+  charts: undefined | VisualizationSpec[];
+};
+
 function useData(
   sweepId: number
 ): {
@@ -67,17 +79,7 @@ function useData(
             } else if (data.sweep.length) {
               const [{ runs, metadata }] = data.sweep;
               const oldData = runs
-                .map(
-                  ({
-                    run_logs
-                  }: {
-                    run_logs: {
-                      id: number;
-                      runid: number;
-                      log: Record<string, unknown>;
-                    }[];
-                  }) => run_logs
-                )
+                .map(({ run_logs }: RunLogs) => run_logs)
                 .flat()
                 .sort(
                   ({ id: id1 }: { id: number }, { id: id2 }: { id: number }) =>
@@ -85,20 +87,12 @@ function useData(
                 )
                 .map(unpackData);
 
-              const unpackAndSetData = ({
+              const unpackMetadata = ({ charts, ...metadata }: Metadata) => ({
+                metadata,
                 charts,
-                ...metadata
-              }: {
-                charts: undefined | VisualizationSpec[];
-              }) => {
-                setData({
-                  metadata: metadata,
-                  charts:
-                    charts === undefined ? [Spec as VisualizationSpec] : charts,
-                  dataPoints: [...oldData, newData]
-                });
-              };
-              unpackAndSetData(metadata);
+                dataPoints: [...oldData, newData]
+              });
+              setData(unpackMetadata(metadata));
             }
           })();
         }

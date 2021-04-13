@@ -3,7 +3,7 @@ import { Vega, View, VisualizationSpec } from "react-vega";
 
 export type DataPoint = { runId: number; logId: number };
 export type Data = {
-  charts: VisualizationSpec[];
+  charts: VisualizationSpec[] | undefined;
   dataPoints: DataPoint[];
   metadata: unknown;
 };
