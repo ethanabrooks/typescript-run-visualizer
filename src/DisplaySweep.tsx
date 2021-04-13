@@ -5,7 +5,7 @@ import Spec from "./Spec.json";
 import { VisualizationSpec } from "react-vega";
 
 type Props = { data: Data };
-export const DisplayCharts: FC<Props> = ({ data }: Props) => {
+export const DisplaySweep: FC<Props> = ({ data }: Props) => {
   let initialCharts = data.charts;
   if (initialCharts === undefined) {
     initialCharts = [Spec as VisualizationSpec];
@@ -15,6 +15,16 @@ export const DisplayCharts: FC<Props> = ({ data }: Props) => {
   );
   return (
     <div className={"container"}>
+      <nav className="breadcrumb" aria-label="breadcrumbs">
+        <ul>
+          <li>
+            <a href="/">All sweeps</a>
+          </li>
+        </ul>
+      </nav>
+      <div>
+        <pre>{JSON.stringify(data.metadata, null, 2)}</pre>
+      </div>
       {charts.map((chart, i) => (
         <ChartWrapper key={i} spec={chart} data={data.dataPoints} />
       ))}

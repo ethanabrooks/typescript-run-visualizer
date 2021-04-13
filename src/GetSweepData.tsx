@@ -1,9 +1,11 @@
 import { ApolloError, useApolloClient, useSubscription } from "@apollo/client";
-import { DisplayCharts } from "./DisplayCharts";
+import { DisplaySweep } from "./DisplaySweep";
 import React, { FC, useState } from "react";
 import { loader } from "graphql.macro";
 import { useParams } from "react-router-dom";
 import { Data, DataPoint } from "./Chart";
+import Spec from "./Spec.json";
+import { VisualizationSpec } from "react-vega";
 
 const unpackData = ({
   log,
@@ -82,7 +84,21 @@ function useData(
                     id1 - id2
                 )
                 .map(unpackData);
-              setData({ ...metadata, dataPoints: [...oldData, newData] });
+
+              const unpackAndSetData = ({
+                charts,
+                ...metadata
+              }: {
+                charts: undefined | VisualizationSpec[];
+              }) => {
+                setData({
+                  metadata: metadata,
+                  charts:
+                    charts === undefined ? [Spec as VisualizationSpec] : charts,
+                  dataPoints: [...oldData, newData]
+                });
+              };
+              unpackAndSetData(metadata);
             }
           })();
         }
@@ -109,5 +125,5 @@ export const GetSweepData: FC = () => {
 
   if (data == null) return <span>Waiting for data...</span>;
   console.log(data);
-  return <DisplayCharts data={data} />;
+  return <DisplaySweep data={data} />;
 };

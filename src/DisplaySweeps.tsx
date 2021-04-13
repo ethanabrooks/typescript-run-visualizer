@@ -15,10 +15,13 @@ export const DisplaySweeps: FC<{ sweeps: Sweep[] }> = ({ sweeps }) => {
           .sort(({ id: id1 }, { id: id2 }) => id1 - id2)
           .reverse()
           .map(({ id, metadata, params }, i) => {
+            const copy = JSON.parse(JSON.stringify(metadata));
+            if (copy != null && copy.charts != undefined) delete copy.charts;
             return (
               <Link key={i} to={`/${id}`}>
                 <li>
-                  {id} {JSON.stringify(metadata)}
+                  {id}
+                  <pre>{JSON.stringify(copy, null, 2)}</pre>
                 </li>
               </Link>
             );
