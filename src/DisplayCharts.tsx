@@ -6,15 +6,25 @@ import { VisualizationSpec } from "react-vega";
 
 type Props = { data: Data };
 export const DisplayCharts: FC<Props> = ({ data }: Props) => {
-  let charts = data.charts;
-  if (charts === undefined) {
-    charts = [Spec as VisualizationSpec];
+  let initialCharts = data.charts;
+  if (initialCharts === undefined) {
+    initialCharts = [Spec as VisualizationSpec];
   }
+  const [charts, setCharts] = React.useState<VisualizationSpec[]>(
+    initialCharts
+  );
   return (
-    <React.Fragment>
+    <div className={"container"}>
       {charts.map((chart, i) => (
         <ChartWrapper key={i} spec={chart} data={data.dataPoints} />
       ))}
-    </React.Fragment>
+      {
+        <ChartWrapper
+          key={-1}
+          data={data.dataPoints}
+          onButtonClick={spec => setCharts([...charts, spec])}
+        />
+      }
+    </div>
   );
 };

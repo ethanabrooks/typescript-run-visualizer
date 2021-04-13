@@ -6,14 +6,15 @@ type State =
   | { editing: true; text: string }
   | { editing: false; spec: VisualizationSpec };
 export const ChartWrapper: FC<{
-  spec: VisualizationSpec | null;
+  spec?: VisualizationSpec;
   data: DataPoint[];
-}> = ({ spec, data }) => {
-  const [state, setState] = React.useState<State>(
-    spec == null
-      ? { editing: true, text: "Enter new vega spec" }
-      : { editing: false, spec }
-  );
+  onButtonClick?: (spec: VisualizationSpec) => void;
+}> = ({ spec, data, onButtonClick }) => {
+  const initialState: State =
+    spec === undefined
+      ? { editing: true, text: "{}" }
+      : { editing: false, spec: spec };
+  const [state, setState] = React.useState<State>(initialState);
 
   if (state.editing) {
     let textSpec: null | VisualizationSpec = null;
@@ -32,9 +33,11 @@ export const ChartWrapper: FC<{
               setState({ ...state, text: target.value })
             }
             className="textarea"
-            placeholder={state.text}
+            placeholder={"Enter new vega spec"}
+            value={state.text}
           />
         </div>
+        {error == null ? null : <span>{error.message}</span>}
         <div className="field is-grouped">
           <button
             className="button is-link"
@@ -44,20 +47,20 @@ export const ChartWrapper: FC<{
                   editing: false,
                   spec: textSpec
                 });
+                if (onButtonClick != null) onButtonClick(textSpec);
               }
             }}
           >
             Submit
           </button>
         </div>
-        {error == null ? null : <span>error</span>}
       </React.Fragment>
     );
   } else {
     return (
       <React.Fragment>
         <div className="field">
-          <Chart dataPoints={data} spec={state.spec} />;
+          <Chart dataPoints={data} spec={state.spec} />
         </div>
         <div className="field is-grouped">
           <button
