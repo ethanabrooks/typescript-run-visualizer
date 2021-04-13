@@ -58,6 +58,10 @@ export const ChartWrapper: FC<{
       </React.Fragment>
     );
   } else {
+    const text = JSON.stringify(spec);
+    const copy = JSON.parse(text);
+    copy.data.values = data;
+
     return (
       <React.Fragment>
         <div className="field">
@@ -69,18 +73,17 @@ export const ChartWrapper: FC<{
             onClick={() => {
               setState({
                 editing: true,
-                text: JSON.stringify(spec)
+                text
               });
             }}
           >
             Edit
           </button>
-          <CopyToClipboard
-            text={this.state.value}
-            onCopy={() => this.setState({ copied: true })}
-          >
-            <span>Copy to clipboard with span</span>
-          </CopyToClipboard>
+          <CopyToClipboard text={JSON.stringify(copy, null, 2)}>
+            <button className={"button"}>
+              Copy Vega spec to clipboard with data
+            </button>
+          </CopyToClipboard>{" "}
         </div>
       </React.Fragment>
     );
