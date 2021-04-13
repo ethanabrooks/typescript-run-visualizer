@@ -32,7 +32,7 @@ export const ChartWrapper: FC<{
             onChange={({ target }) =>
               setState({ ...state, text: target.value })
             }
-            className="textarea"
+            className={`textarea ${error == null ? "" : "is-danger"}`}
             placeholder={"Enter new vega spec"}
             value={state.text}
           />
