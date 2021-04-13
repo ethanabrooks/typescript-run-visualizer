@@ -60,7 +60,7 @@ export const ChartWrapper: FC<{
   } else {
     const text = JSON.stringify(spec);
     const copy = JSON.parse(text);
-    copy.data.values = data;
+    if (copy.data !== undefined) copy.data.values = data;
 
     return (
       <React.Fragment>
@@ -79,10 +79,11 @@ export const ChartWrapper: FC<{
           >
             Edit
           </button>
+          <CopyToClipboard text={JSON.stringify(spec, null, 2)}>
+            <button className={"button"}>Copy Vega spec</button>
+          </CopyToClipboard>{" "}
           <CopyToClipboard text={JSON.stringify(copy, null, 2)}>
-            <button className={"button"}>
-              Copy Vega spec to clipboard with data
-            </button>
+            <button className={"button"}>Copy Vega spec with data</button>
           </CopyToClipboard>{" "}
         </div>
       </React.Fragment>

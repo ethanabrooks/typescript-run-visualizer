@@ -124,6 +124,5 @@ export const GetSweepData: FC = () => {
   }
 
   if (data == null) return <span>Waiting for data...</span>;
-  console.log(data);
   return <DisplaySweep data={data} />;
 };

@@ -1,8 +1,5 @@
 
 ###### checked means do today
-- improve sweep menu
-  - [x] show params as copy-able yaml: 30 min
-
 - improve chart display
   - [x] add ability to add new charts: 1 hour
   - [x] display script with data added in collapsible code snippet: 45 min
