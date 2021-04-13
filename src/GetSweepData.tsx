@@ -1,5 +1,5 @@
 import { ApolloError, useApolloClient, useSubscription } from "@apollo/client";
-import { ComposeCharts } from "./ComposeCharts";
+import { DisplayCharts } from "./DisplayCharts";
 import React, { FC, useState } from "react";
 import { loader } from "graphql.macro";
 import { useParams } from "react-router-dom";
@@ -108,5 +108,6 @@ export const GetSweepData: FC = () => {
   }
 
   if (data == null) return <span>Waiting for data...</span>;
-  return <ComposeCharts data={data} />;
+  console.log(data);
+  return <DisplayCharts data={data} />;
 };
