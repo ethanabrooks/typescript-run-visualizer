@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import { VisualizationSpec } from "react-vega";
 import { Chart, DataPoint } from "./Chart";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 
 type State =
   | { editing: true; text: string }
@@ -64,7 +65,7 @@ export const ChartWrapper: FC<{
         </div>
         <div className="field is-grouped">
           <button
-            className="button is-link"
+            className="button"
             onClick={() => {
               setState({
                 editing: true,
@@ -74,6 +75,12 @@ export const ChartWrapper: FC<{
           >
             Edit
           </button>
+          <CopyToClipboard
+            text={this.state.value}
+            onCopy={() => this.setState({ copied: true })}
+          >
+            <span>Copy to clipboard with span</span>
+          </CopyToClipboard>
         </div>
       </React.Fragment>
     );
