@@ -14,14 +14,7 @@ export const DisplaySweep: FC<Props> = ({ data }: Props) => {
     initialCharts
   );
   return (
-    <div className={"container"}>
-      <nav className="breadcrumb" aria-label="breadcrumbs">
-        <ul>
-          <li>
-            <a href="/">All sweeps</a>
-          </li>
-        </ul>
-      </nav>
+    <React.Fragment>
       <div>
         <pre>{JSON.stringify(data.metadata, null, 2)}</pre>
       </div>
@@ -35,6 +28,6 @@ export const DisplaySweep: FC<Props> = ({ data }: Props) => {
           onButtonClick={spec => setCharts([...charts, spec])}
         />
       }
-    </div>
+    </React.Fragment>
   );
 };
