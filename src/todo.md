@@ -7,7 +7,8 @@
   - [ ] allow customization of sweep query: 1 hour
   - [ ] implement the equality check (discussion with Alec)
 
-- [x] add ability to display runs: 1 hour
+- [ ] add ability to display runs: 1 hour
+- [ ] use separate charts table
+- [ ] allow user to modify charts table for specs not assigned to a sweep or a run
+- [ ] allow user to modify charts table for specs not assigned to a sweep or a run
   
-- improve python code 
-  - [ ] Add python code as pip downloadable package

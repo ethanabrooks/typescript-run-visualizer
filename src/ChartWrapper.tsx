@@ -60,7 +60,7 @@ export const ChartWrapper: FC<{
   } else {
     const text = JSON.stringify(spec);
     const copy = JSON.parse(text);
-    if (copy.data !== undefined) copy.data.values = data;
+    if (copy.data !== undefined) copy.data.values = data.slice(0, 20);
 
     return (
       <React.Fragment>
