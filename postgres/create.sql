@@ -1,26 +1,40 @@
 BEGIN;
 CREATE TABLE sweep (
-  ID serial primary key,
-  GridIndex int,
-  Metadata jsonb
+  id serial primary key,
+  grid_index int,
+  metadata JSONB
 );
 
 CREATE TABLE run (
-  ID serial primary key,
-  SweepID int references sweep(id),
-  Metadata jsonb
+  id serial primary key,
+  sweep_id int references sweep(id),
+  metadata JSONB
 );
 
-CREATE TABLE sweep_parameters (
-  SweepID integer not null references sweep(ID),
-  Key text not null,
-  Parameters jsonb[] not null,
-  unique (SweepID, Key)
+CREATE TABLE parameter_choice (
+  sweep_id integer not null references sweep(id),
+  key text not null,
+  choice jsonb[] not null,
+  unique (sweep_id, key)
 );
 
 CREATE TABLE run_log (
-  ID serial primary key,
-  RunId int not null references run(id),
-  Log jsonb not null
+  id serial primary key,
+  run_id int not null references run(id),
+  log JSONB not null
+);
+
+CREATE TABLE chart (
+  id serial primary key,
+  run_id int references run(id),
+  sweep_id int references sweep(id),
+  spec JSONB not null
+);
+
+CREATE TABLE image (
+  id serial primary key,
+  run_id int references run(id),
+  sweep_id int references sweep(id),
+  rgb float[][][] not null
 );
 COMMIT;
