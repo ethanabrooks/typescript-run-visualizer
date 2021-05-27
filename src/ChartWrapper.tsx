@@ -3,6 +3,7 @@ import { VisualizationSpec } from "react-vega";
 import { Chart, DataPoint } from "./Chart";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 
+
 type State =
   | { editing: true; text: string }
   | { editing: false; spec: VisualizationSpec };
